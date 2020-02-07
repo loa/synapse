@@ -104,7 +104,9 @@ class _EventInternalMetadata(object):
     __slots__ = ["_dict"]
 
     def __init__(self, internal_metadata_dict: JsonDict):
-        self._dict = internal_metadata_dict
+        # we have to copy the dict, because it turns out that the same dict is
+        # reused. TODO: fix that
+        self._dict = dict(internal_metadata_dict)
 
     outlier = DictProperty("outlier")  # type: bool
     out_of_band_membership = DictProperty("out_of_band_membership")  # type: bool
