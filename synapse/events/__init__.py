@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright 2014-2016 OpenMarket Ltd
 # Copyright 2019 New Vector Ltd
+# Copyright 2020 The Matrix.org Foundation C.I.C.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,33 +101,41 @@ class DefaultDictProperty(DictProperty):
 
 
 class _EventInternalMetadata(object):
-    def __init__(self, internal_metadata_dict):
-        self.__dict__ = dict(internal_metadata_dict)
+    def __init__(self, internal_metadata_dict: JsonDict):
+        self._dict = internal_metadata_dict
 
-    def get_dict(self):
-        return dict(self.__dict__)
+    outlier = DictProperty("outlier")  # type: bool
+    out_of_band_membership = DictProperty("out_of_band_membership")  # type: bool
+    send_on_behalf_of = DictProperty("send_on_behalf_of")  # type: str
+    recheck_redaction = DictProperty("recheck_redaction")  # type: bool
+    soft_failed = DictProperty("soft_failed")  # type: bool
+    proactively_send = DictProperty("proactively_send")  # type: bool
+    redacted = DictProperty("redacted")  # type: bool
 
-    def is_outlier(self):
-        return getattr(self, "outlier", False)
+    def get_dict(self) -> JsonDict:
+        return dict(self._dict)
 
-    def is_out_of_band_membership(self):
+    def is_outlier(self) -> bool:
+        return self._dict.get("outlier", False)
+
+    def is_out_of_band_membership(self) -> bool:
         """Whether this is an out of band membership, like an invite or an invite
         rejection. This is needed as those events are marked as outliers, but
         they still need to be processed as if they're new events (e.g. updating
         invite state in the database, relaying to clients, etc).
         """
-        return getattr(self, "out_of_band_membership", False)
+        return self._dict.get("out_of_band_membership", False)
 
-    def get_send_on_behalf_of(self):
+    def get_send_on_behalf_of(self) -> Optional[str]:
         """Whether this server should send the event on behalf of another server.
         This is used by the federation "send_join" API to forward the initial join
         event for a server in the room.
 
         returns a str with the name of the server this event is sent on behalf of.
         """
-        return getattr(self, "send_on_behalf_of", None)
+        return self._dict.get("send_on_behalf_of")
 
-    def need_to_check_redaction(self):
+    def need_to_check_redaction(self) -> bool:
         """Whether the redaction event needs to be rechecked when fetching
         from the database.
 
@@ -139,9 +148,9 @@ class _EventInternalMetadata(object):
         Returns:
             bool
         """
-        return getattr(self, "recheck_redaction", False)
+        return self._dict.get("recheck_redaction", False)
 
-    def is_soft_failed(self):
+    def is_soft_failed(self) -> bool:
         """Whether the event has been soft failed.
 
         Soft failed events should be handled as usual, except:
@@ -153,7 +162,7 @@ class _EventInternalMetadata(object):
         Returns:
             bool
         """
-        return getattr(self, "soft_failed", False)
+        return self._dict.get("soft_failed", False)
 
     def should_proactively_send(self):
         """Whether the event, if ours, should be sent to other clients and
@@ -165,7 +174,7 @@ class _EventInternalMetadata(object):
         Returns:
             bool
         """
-        return getattr(self, "proactively_send", True)
+        return self._dict.get("proactively_send", True)
 
     def is_redacted(self):
         """Whether the event has been redacted.
@@ -176,7 +185,7 @@ class _EventInternalMetadata(object):
         Returns:
             bool
         """
-        return getattr(self, "redacted", False)
+        return self._dict.get("redacted", False)
 
 
 class EventBase(object):
