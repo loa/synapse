@@ -101,6 +101,8 @@ class DefaultDictProperty(DictProperty):
 
 
 class _EventInternalMetadata(object):
+    __slots__ = ["_dict"]
+
     def __init__(self, internal_metadata_dict: JsonDict):
         self._dict = internal_metadata_dict
 
@@ -111,6 +113,16 @@ class _EventInternalMetadata(object):
     soft_failed = DictProperty("soft_failed")  # type: bool
     proactively_send = DictProperty("proactively_send")  # type: bool
     redacted = DictProperty("redacted")  # type: bool
+    txn_id = DictProperty("txn_id")  # type: str
+    token_id = DictProperty("token_id")  # type: str
+    stream_ordering = DictProperty("stream_ordering")  # type: int
+
+    # XXX: These are set by StreamWorkerStore._set_before_and_after.
+    # I'm pretty sure that these are never persisted to the database, so shouldn't
+    # be here
+    before = DictProperty("before")  # type: str
+    after = DictProperty("before")  # type: str
+    order = DictProperty("order")  # type: int
 
     def get_dict(self) -> JsonDict:
         return dict(self._dict)
