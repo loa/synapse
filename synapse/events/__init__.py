@@ -123,7 +123,7 @@ class _EventInternalMetadata(object):
     # I'm pretty sure that these are never persisted to the database, so shouldn't
     # be here
     before = DictProperty("before")  # type: str
-    after = DictProperty("before")  # type: str
+    after = DictProperty("after")  # type: str
     order = DictProperty("order")  # type: int
 
     def get_dict(self) -> JsonDict:
